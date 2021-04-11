@@ -1,15 +1,10 @@
-#include "triangulator.h"
+#include <hmm/triangulator.h>
 
 #include <algorithm>
 
-Triangulator::Triangulator(const std::shared_ptr<Heightmap> &heightmap) :
-    m_Heightmap(heightmap) {}
+Triangulator::Triangulator(const std::shared_ptr<Heightmap>& heightmap) : m_Heightmap(heightmap) {}
 
-void Triangulator::Run(
-    const float maxError,
-    const int maxTriangles,
-    const int maxPoints)
-{
+void Triangulator::Run(const float maxError, const int maxTriangles, const int maxPoints) {
     // add points at all four corners
     const int x0 = 0;
     const int y0 = 0;
@@ -45,15 +40,13 @@ void Triangulator::Run(
     }
 }
 
-float Triangulator::Error() const {
-    return m_Errors[m_Queue[0]];
-}
+float Triangulator::Error() const { return m_Errors[m_Queue[0]]; }
 
 std::vector<glm::vec3> Triangulator::Points(const float zScale) const {
     std::vector<glm::vec3> points;
     points.reserve(m_Points.size());
     const int h1 = m_Heightmap->Height() - 1;
-    for (const glm::ivec2 &p : m_Points) {
+    for (const glm::ivec2& p : m_Points) {
         points.emplace_back(p.x, h1 - p.y, m_Heightmap->At(p.x, p.y) * zScale);
     }
     return points;
@@ -63,10 +56,8 @@ std::vector<glm::ivec3> Triangulator::Triangles() const {
     std::vector<glm::ivec3> triangles;
     triangles.reserve(m_Queue.size());
     for (const int i : m_Queue) {
-        triangles.emplace_back(
-            m_Triangles[i * 3 + 0],
-            m_Triangles[i * 3 + 1],
-            m_Triangles[i * 3 + 2]);
+        triangles.emplace_back(m_Triangles[i * 3 + 0], m_Triangles[i * 3 + 1],
+                               m_Triangles[i * 3 + 2]);
     }
     return triangles;
 }
@@ -74,10 +65,9 @@ std::vector<glm::ivec3> Triangulator::Triangles() const {
 void Triangulator::Flush() {
     for (const int t : m_Pending) {
         // rasterize triangle to find maximum pixel error
-        const auto pair = m_Heightmap->FindCandidate(
-            m_Points[m_Triangles[t*3+0]],
-            m_Points[m_Triangles[t*3+1]],
-            m_Points[m_Triangles[t*3+2]]);
+        const auto pair = m_Heightmap->FindCandidate(m_Points[m_Triangles[t * 3 + 0]],
+                                                     m_Points[m_Triangles[t * 3 + 1]],
+                                                     m_Points[m_Triangles[t * 3 + 2]]);
         // update metadata
         m_Candidates[t] = pair.first;
         m_Errors[t] = pair.second;
@@ -107,10 +97,8 @@ void Triangulator::Step() {
 
     const int pn = AddPoint(p);
 
-    const auto collinear = [](
-        const glm::ivec2 p0, const glm::ivec2 p1, const glm::ivec2 p2)
-    {
-        return (p1.y-p0.y)*(p2.x-p1.x) == (p2.y-p1.y)*(p1.x-p0.x);
+    const auto collinear = [](const glm::ivec2 p0, const glm::ivec2 p1, const glm::ivec2 p2) {
+        return (p1.y - p0.y) * (p2.x - p1.x) == (p2.y - p1.y) * (p1.x - p0.x);
     };
 
     const auto handleCollinear = [this](const int pn, const int a) {
@@ -182,11 +170,8 @@ int Triangulator::AddPoint(const glm::ivec2 point) {
     return i;
 }
 
-int Triangulator::AddTriangle(
-    const int a, const int b, const int c,
-    const int ab, const int bc, const int ca,
-    int e)
-{
+int Triangulator::AddTriangle(const int a, const int b, const int c, const int ab, const int bc,
+                              const int ca, int e) {
     if (e < 0) {
         // new halfedge index
         e = m_Triangles.size();
@@ -248,10 +233,8 @@ void Triangulator::Legalize(const int a) {
     //          \||/                  \  /
     //           pr                    pr
 
-    const auto inCircle = [](
-        const glm::ivec2 a, const glm::ivec2 b, const glm::ivec2 c,
-        const glm::ivec2 p)
-    {
+    const auto inCircle = [](const glm::ivec2 a, const glm::ivec2 b, const glm::ivec2 c,
+                             const glm::ivec2 p) {
         const int64_t dx = a.x - p.x;
         const int64_t dy = a.y - p.y;
         const int64_t ex = b.x - p.x;
@@ -261,7 +244,7 @@ void Triangulator::Legalize(const int a) {
         const int64_t ap = dx * dx + dy * dy;
         const int64_t bp = ex * ex + ey * ey;
         const int64_t cp = fx * fx + fy * fy;
-        return dx*(ey*cp-bp*fy)-dy*(ex*cp-bp*fx)+ap*(ex*fy-ey*fx) < 0;
+        return dx * (ey * cp - bp * fy) - dy * (ex * cp - bp * fx) + ap * (ex * fy - ey * fx) < 0;
     };
 
     const int b = m_Halfedges[a];

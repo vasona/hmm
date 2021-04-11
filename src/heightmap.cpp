@@ -1,23 +1,20 @@
-#include "heightmap.h"
+#include <hmm/heightmap.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
+#include <hmm/blur.h>
+
 #include <glm/gtx/normal.hpp>
 #include <glm/gtx/polar_coordinates.hpp>
 
-#include "blur.h"
-
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <hmm/stb_image.h>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include <hmm/stb_image_write.h>
 
-Heightmap::Heightmap(const std::string &path) :
-    m_Width(0),
-    m_Height(0)
-{
+Heightmap::Heightmap(const std::string& path) : m_Width(0), m_Height(0) {
     int w, h, c;
-    uint16_t *data = stbi_load_16(path.c_str(), &w, &h, &c, 1);
+    uint16_t* data = stbi_load_16(path.c_str(), &w, &h, &c, 1);
     if (!data) {
         return;
     }
@@ -32,14 +29,8 @@ Heightmap::Heightmap(const std::string &path) :
     free(data);
 }
 
-Heightmap::Heightmap(
-    const int width,
-    const int height,
-    const std::vector<float> &data) :
-    m_Width(width),
-    m_Height(height),
-    m_Data(data)
-{}
+Heightmap::Heightmap(const int width, const int height, const std::vector<float>& data)
+    : m_Width(width), m_Height(height), m_Data(data) {}
 
 void Heightmap::AutoLevel() {
     float lo = m_Data[0];
@@ -84,9 +75,7 @@ void Heightmap::AddBorder(const int size, const float z) {
     m_Data = data;
 }
 
-void Heightmap::GaussianBlur(const int r) {
-    m_Data = ::GaussianBlur(m_Data, m_Width, m_Height, r);
-}
+void Heightmap::GaussianBlur(const int r) { m_Data = ::GaussianBlur(m_Data, m_Width, m_Height, r); }
 
 std::vector<glm::vec3> Heightmap::Normalmap(const float zScale) const {
     const int w = m_Width - 1;
@@ -120,10 +109,7 @@ std::vector<glm::vec3> Heightmap::Normalmap(const float zScale) const {
     return result;
 }
 
-void Heightmap::SaveNormalmap(
-    const std::string &path,
-    const float zScale) const
-{
+void Heightmap::SaveNormalmap(const std::string& path, const float zScale) const {
     const std::vector<glm::vec3> nm = Normalmap(zScale);
     std::vector<uint8_t> data(nm.size() * 3);
     int i = 0;
@@ -133,19 +119,13 @@ void Heightmap::SaveNormalmap(
         data[i++] = uint8_t(n.y * 255);
         data[i++] = uint8_t(n.z * 255);
     }
-    stbi_write_png(
-        path.c_str(), m_Width - 1, m_Height - 1, 3,
-        data.data(), (m_Width - 1) * 3);
+    stbi_write_png(path.c_str(), m_Width - 1, m_Height - 1, 3, data.data(), (m_Width - 1) * 3);
 }
 
-void Heightmap::SaveHillshade(
-    const std::string &path,
-    const float zScale,
-    const float altitude,
-    const float azimuth) const
-{
-    const glm::vec3 light = glm::euclidean(glm::vec2(
-        glm::radians(altitude), glm::radians(-azimuth))).xzy();
+void Heightmap::SaveHillshade(const std::string& path, const float zScale, const float altitude,
+                              const float azimuth) const {
+    const glm::vec3 light =
+        glm::euclidean(glm::vec2(glm::radians(altitude), glm::radians(-azimuth))).xzy();
     const std::vector<glm::vec3> nm = Normalmap(zScale);
     std::vector<uint8_t> data(nm.size() * 3);
     int i = 0;
@@ -155,19 +135,12 @@ void Heightmap::SaveHillshade(
         data[i++] = d;
         data[i++] = d;
     }
-    stbi_write_png(
-        path.c_str(), m_Width - 1, m_Height - 1, 3,
-        data.data(), (m_Width - 1) * 3);
+    stbi_write_png(path.c_str(), m_Width - 1, m_Height - 1, 3, data.data(), (m_Width - 1) * 3);
 }
 
-std::pair<glm::ivec2, float> Heightmap::FindCandidate(
-    const glm::ivec2 p0,
-    const glm::ivec2 p1,
-    const glm::ivec2 p2) const
-{
-    const auto edge = [](
-        const glm::ivec2 a, const glm::ivec2 b, const glm::ivec2 c)
-    {
+std::pair<glm::ivec2, float> Heightmap::FindCandidate(const glm::ivec2 p0, const glm::ivec2 p1,
+                                                      const glm::ivec2 p2) const {
+    const auto edge = [](const glm::ivec2 a, const glm::ivec2 b, const glm::ivec2 c) {
         return (b.x - c.x) * (a.y - c.y) - (b.y - c.y) * (a.x - c.x);
     };
 

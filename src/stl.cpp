@@ -1,20 +1,17 @@
-#include "stl.h"
+#include <hmm/stl.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 
+#include <cstring>
 #include <fstream>
 #include <glm/gtx/normal.hpp>
-#include <cstring>
 
-void SaveBinarySTL(
-    const std::string &path,
-    const std::vector<glm::vec3> &points,
-    const std::vector<glm::ivec3> &triangles)
-{
+void SaveBinarySTL(const std::string& path, const std::vector<glm::vec3>& points,
+                   const std::vector<glm::ivec3>& triangles) {
     // TODO: properly handle endian-ness
 
     const uint64_t numBytes = uint64_t(triangles.size()) * 50 + 84;
-    char *dst = (char *)calloc(numBytes, 1);
+    char* dst = (char*)calloc(numBytes, 1);
 
     const uint32_t count = triangles.size();
     memcpy(dst + 80, &count, 4);

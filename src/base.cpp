@@ -1,4 +1,4 @@
-#include "base.h"
+#include <hmm/base.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 
@@ -6,11 +6,8 @@
 #include <map>
 #include <unordered_map>
 
-void AddBase(
-    std::vector<glm::vec3> &points,
-    std::vector<glm::ivec3> &triangles,
-    const int w, const int h, const float z)
-{
+void AddBase(std::vector<glm::vec3>& points, std::vector<glm::ivec3>& triangles, const int w,
+             const int h, const float z) {
     const int w1 = w - 1;
     const int h1 = h - 1;
 
@@ -22,7 +19,7 @@ void AddBase(
 
     // find points along each edge
     for (int i = 0; i < points.size(); i++) {
-        const auto &p = points[i];
+        const auto& p = points[i];
         bool edge = false;
         if (p.x == 0) {
             x0s[p.y] = p.z;
@@ -48,9 +45,7 @@ void AddBase(
     std::vector<std::pair<int, float>> sy0s(y0s.begin(), y0s.end());
     std::vector<std::pair<int, float>> sy1s(y1s.begin(), y1s.end());
 
-    const auto pointIndex = [&lookup, &points](
-        const float x, const float y, const float z)
-    {
+    const auto pointIndex = [&lookup, &points](const float x, const float y, const float z) {
         const glm::vec3 point(x, y, z);
         if (lookup.find(point) == lookup.end()) {
             lookup[point] = points.size();
@@ -64,9 +59,9 @@ void AddBase(
 
     // edge x = 0
     for (int i = 1; i < sx0s.size(); i++) {
-        const int y0 = sx0s[i-1].first;
+        const int y0 = sx0s[i - 1].first;
         const int y1 = sx0s[i].first;
-        const float z0 = sx0s[i-1].second;
+        const float z0 = sx0s[i - 1].second;
         const float z1 = sx0s[i].second;
         const int p00 = pointIndex(0, y0, z);
         const int p01 = pointIndex(0, y0, z0);
@@ -79,9 +74,9 @@ void AddBase(
 
     // edge x = w1
     for (int i = 1; i < sx1s.size(); i++) {
-        const int y0 = sx1s[i-1].first;
+        const int y0 = sx1s[i - 1].first;
         const int y1 = sx1s[i].first;
-        const float z0 = sx1s[i-1].second;
+        const float z0 = sx1s[i - 1].second;
         const float z1 = sx1s[i].second;
         const int p00 = pointIndex(w1, y0, z);
         const int p01 = pointIndex(w1, y0, z0);
@@ -94,9 +89,9 @@ void AddBase(
 
     // edge y = 0
     for (int i = 1; i < sy0s.size(); i++) {
-        const int x0 = sy0s[i-1].first;
+        const int x0 = sy0s[i - 1].first;
         const int x1 = sy0s[i].first;
-        const float z0 = sy0s[i-1].second;
+        const float z0 = sy0s[i - 1].second;
         const float z1 = sy0s[i].second;
         const int p00 = pointIndex(x0, 0, z);
         const int p01 = pointIndex(x0, 0, z0);
@@ -109,9 +104,9 @@ void AddBase(
 
     // edge y = h1
     for (int i = 1; i < sy1s.size(); i++) {
-        const int x0 = sy1s[i-1].first;
+        const int x0 = sy1s[i - 1].first;
         const int x1 = sy1s[i].first;
-        const float z0 = sy1s[i-1].second;
+        const float z0 = sy1s[i - 1].second;
         const float z1 = sy1s[i].second;
         const int p00 = pointIndex(x0, h1, z);
         const int p01 = pointIndex(x0, h1, z0);

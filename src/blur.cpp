@@ -1,4 +1,4 @@
-#include "blur.h"
+#include <hmm/blur.h>
 
 #include <cmath>
 
@@ -14,9 +14,7 @@ std::vector<int> BoxesForGaussian(const float sigma, const int n) {
     }
     const int wu = wl + 2;
 
-    const float mIdeal =
-        (12 * sigma * sigma - n * wl * wl - 4 * n * wl - 3 * n) /
-        (-4 * wl - 4);
+    const float mIdeal = (12 * sigma * sigma - n * wl * wl - 4 * n * wl - 3 * n) / (-4 * wl - 4);
     const int m = std::round(mIdeal);
 
     std::vector<int> sizes;
@@ -26,11 +24,8 @@ std::vector<int> BoxesForGaussian(const float sigma, const int n) {
     return sizes;
 }
 
-void BoxBlurH(
-    std::vector<float> &src,
-    std::vector<float> &dst,
-    const int w, const int h, const int r)
-{
+void BoxBlurH(std::vector<float>& src, std::vector<float>& dst, const int w, const int h,
+              const int r) {
     const float m = 1.f / (r + r + 1);
     for (int i = 0; i < h; i++) {
         int ti = i * w;
@@ -64,11 +59,8 @@ void BoxBlurH(
     }
 }
 
-void BoxBlurV(
-    std::vector<float> &src,
-    std::vector<float> &dst,
-    const int w, const int h, const int r)
-{
+void BoxBlurV(std::vector<float>& src, std::vector<float>& dst, const int w, const int h,
+              const int r) {
     const float m = 1.f / (r + r + 1);
     for (int i = 0; i < w; i++) {
         int ti = i;
@@ -102,23 +94,17 @@ void BoxBlurV(
     }
 }
 
-
-void BoxBlur(
-    std::vector<float> &src,
-    std::vector<float> &dst,
-    const int w, const int h, const int r)
-{
+void BoxBlur(std::vector<float>& src, std::vector<float>& dst, const int w, const int h,
+             const int r) {
     dst.assign(src.begin(), src.end());
     BoxBlurH(dst, src, w, h, r);
     BoxBlurV(src, dst, w, h, r);
 }
 
-}
+}  // namespace
 
-std::vector<float> GaussianBlur(
-    const std::vector<float> &data,
-    const int w, const int h, const int r)
-{
+std::vector<float> GaussianBlur(const std::vector<float>& data, const int w, const int h,
+                                const int r) {
     std::vector<float> src = data;
     std::vector<float> dst(data.size());
     const std::vector<int> boxes = BoxesForGaussian(r, 3);
