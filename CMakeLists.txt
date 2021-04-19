@@ -22,7 +22,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(glm)
 
-add_library(hmm SHARED ${SRC})
+add_library(hmm STATIC ${SRC})
 set_property(TARGET hmm PROPERTY CXX_STANDARD 20)
 target_link_libraries(hmm PRIVATE glm)
 target_include_directories(hmm PUBLIC include)
